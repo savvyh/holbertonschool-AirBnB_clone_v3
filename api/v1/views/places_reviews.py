@@ -14,7 +14,7 @@ from models.user import User
 def get_place_reviews(place_id):
     """Retrieves the list of all Review objects of a Place"""
     place = storage.get(Place, place_id)
-    if place is None:
+    if not place:
         abort(404)
     review_list = [review.to_dict() for review in place.reviews]
     return jsonify(review_list)
@@ -24,7 +24,7 @@ def get_place_reviews(place_id):
 def get_review(review_id):
     """Retrieves a Review object"""
     review = storage.get(Review, review_id)
-    if review is None:
+    if not review:
         abort(404)
     return jsonify(review.to_dict())
 
@@ -34,7 +34,7 @@ def get_review(review_id):
 def delete_review(review_id):
     """Deletes a Review object"""
     review = storage.get(Review, review_id)
-    if review is None:
+    if not review:
         abort(404)
     storage.delete(review)
     storage.save()
@@ -46,7 +46,7 @@ def delete_review(review_id):
 def create_review(place_id):
     """Creates a Review"""
     place = storage.get(Place, place_id)
-    if place is None:
+    if not place:
         abort(404)
     if not request.json:
         abort(400, 'Not a JSON')
@@ -55,7 +55,7 @@ def create_review(place_id):
         abort(400, 'Missing user_id')
     user_id = data['user_id']
     user = storage.get(User, user_id)
-    if user is None:
+    if not user:
         abort(404)
     if 'text' not in data:
         abort(400, 'Missing text')
@@ -69,13 +69,13 @@ def create_review(place_id):
 def update_review(review_id):
     """Updates a Review object"""
     review = storage.get(Review, review_id)
-    if review is None:
+    if not review:
         abort(404)
     if not request.json:
         abort(400, 'Not a JSON')
     data = request.get_json()
     for k, value in data.items():
         if k not in ['id', 'user_id', 'place_id', 'created_at', 'updated_at']:
-            setattr(review, key, value)
+            setattr(review, k, value)
     review.save()
     return jsonify(review.to_dict()), 200
